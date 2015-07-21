@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">KanjiSteps</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="Welcome_Message">Welcome to KanjiSteps! This project is being created by a student, so please be patient with it.</string>
+    <string name="Practice_btn">Start Practicing!</string>
+    <string name="Learning_btn">勉強始めて(Start Studying!)</string>
+    <string name="Not_implemented">Sorry! This feature has not been implemented yet. Be sure to check for updates!</string>
+    <string name="PracticeTitle">Practice and Review</string>
+    <string name="title_activity_practice_slides">Practice_slides</string>
+    <string name="title_activity_study__slides">Study_Slides</string>
+</resources>
