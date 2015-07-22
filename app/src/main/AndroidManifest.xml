@@ -40,6 +40,19 @@
         <activity
             android:name=".Study_Slides"
             android:label="@string/title_activity_study__slides" >
+            <intent-filter android:label="@string/title_activity_study__slides" >
+                <action android:name="android.intent.action.STUDY_SLIDES" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Study_Menu"
+            android:label="@string/title_activity_study__menu" >
+            <intent-filter android:label="@string/title_activity_study__menu">
+                <action android:name="android.intent.action.STUDY_MENU" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
     </application>
 

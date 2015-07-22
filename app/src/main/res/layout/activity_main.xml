@@ -27,7 +27,8 @@
         android:layout_height="wrap_content"
         android:text="@string/Learning_btn"
         android:textAllCaps="false"
-        android:id="@+id/btnLearn"
+        android:id="@+id/btnStudy"
+        android:onClick="studyPressed"
         android:layout_gravity="center_horizontal" />
 
 </LinearLayout>

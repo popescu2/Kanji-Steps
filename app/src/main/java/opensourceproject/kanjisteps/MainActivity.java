@@ -62,6 +62,14 @@ public class MainActivity extends ActionBarActivity {
         Intent openPractice = new Intent("android.intent.action.PRACTICE");
         startActivity(openPractice);
     }
+
+    public void studyPressed(View view)
+    {
+        Intent openStudy = new Intent("android.intent.action.STUDY_MENU");
+        startActivity(openStudy);
+    }
+
+
     public void exportDB(){
         File sd = Environment.getExternalStorageDirectory();
         File data = Environment.getDataDirectory();
@@ -84,4 +92,6 @@ public class MainActivity extends ActionBarActivity {
             e.printStackTrace();
         }
     }
+
+
 }

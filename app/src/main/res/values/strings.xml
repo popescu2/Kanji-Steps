@@ -10,4 +10,5 @@
     <string name="PracticeTitle">Practice and Review</string>
     <string name="title_activity_practice_slides">Practice_slides</string>
     <string name="title_activity_study__slides">Study_Slides</string>
+    <string name="title_activity_study__menu">Study_Menu</string>
 </resources>
