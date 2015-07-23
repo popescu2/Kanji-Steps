@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
+
 
 public class Study_Menu extends ActionBarActivity {
 
@@ -46,24 +48,29 @@ public class Study_Menu extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     public void loadLevels()
     {
         KanjiToStudyAdapter db = new KanjiToStudyAdapter(this);
-        int i = 1;
-        Cursor cursor = db.getItemsByLevel(i);
-        int lvlColumn = cursor.getColumnIndex(db.myKanjiDb.COLUMN_LEVEL);
 
-        while(cursor.moveToNext())
+        ArrayList<String> levels = db.getLevels();
+
+        for(int i = 0; i < levels.size(); i++)
         {
-            Button btn = new Button(this);
-            btn.setText(Integer.toString(cursor.getInt(lvlColumn)));
-            btn.setId(1+i);
-            btn.setLayoutParams(new ActionBar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+            final Button btn = new Button(this);
+            btn.setText(levels.get(i));
+            btn.setId(i);
+            btn.setLayoutParams(new ActionBar.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    btn.setText("Button was clicked " + btn.getId());
+                }
+            });
             layout.addView(btn);
             setContentView(layout);
-            i++;
-            cursor = db.getItemsByLevel(i);
         }
     }
+
 }

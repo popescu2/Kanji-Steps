@@ -1,20 +1,29 @@
 package opensourceproject.kanjisteps;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+
+import java.util.ArrayList;
 
 
 public class Practice_Activity extends ActionBarActivity {
+
+    LinearLayout layout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practice_layout);
+        layout = (LinearLayout) View.inflate(this, R.layout.activity_practice_layout, null);
+        loadLevels();
     }
 
     @Override
@@ -51,9 +60,8 @@ public class Practice_Activity extends ActionBarActivity {
         *Call the new activity and pass in the values from the btnID_Level*
     }
      */
-    public void lvl1Pressed(View view)
-    {
-        Button b = (Button)view;
+    public void lvl1Pressed(View view) {
+        Button b = (Button) view;
         String btnID = b.getText().toString();
 
         /*
@@ -63,12 +71,33 @@ public class Practice_Activity extends ActionBarActivity {
         so doing a substring on the 6th index to the rest is sufficient for now to only
         grab the integer.
          */
-        btnID = btnID.substring(6);
-        int btnIdLevel = Integer.parseInt(btnID);
+
 
         Intent openPSlides = new Intent("android.intent.action.PRACTICE_SLIDES");
-        openPSlides.putExtra("INITIALIZE_LEVEL", btnIdLevel);
+        openPSlides.putExtra("INITIALIZE_LEVEL", btnID);
         startActivity(openPSlides);
 
+    }
+
+    public void loadLevels() {
+        KanjiToStudyAdapter db = new KanjiToStudyAdapter(this);
+
+        ArrayList<String> levels = db.getLevels();
+
+        for (int i = 0; i < levels.size(); i++) {
+            final Button btn = new Button(this);
+            btn.setText(levels.get(i));
+            btn.setId(i);
+            btn.setLayoutParams(new ActionBar.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    lvl1Pressed(v);
+                }
+            });
+            layout.addView(btn);
+            setContentView(layout);
+        }
     }
 }

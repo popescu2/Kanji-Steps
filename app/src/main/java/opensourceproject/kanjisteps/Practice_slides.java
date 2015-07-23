@@ -18,7 +18,7 @@ import java.util.TimerTask;
 
 public class Practice_slides extends ActionBarActivity {
 
-    public int level_marker = 0;
+    public String level_marker = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,7 +26,7 @@ public class Practice_slides extends ActionBarActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null)
         {
-            level_marker = extras.getInt("INITIALIZE_LEVEL");
+            level_marker = extras.getString("INITIALIZE_LEVEL");
         }
         quizByLevel();
     }
@@ -55,7 +55,7 @@ public class Practice_slides extends ActionBarActivity {
 
 
 
-    public void setLevel_marker(int p)
+    public void setLevel_marker(String p)
     {
         level_marker = p;
     }

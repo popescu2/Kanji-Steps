@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -24,6 +25,7 @@ public class KanjiToStudyAdapter {
         myKanjiDb = new KanjiToStudy(context);
     }
 
+    //I think this will be redundant. Maybe I can use this for the user creating quizzes...
     public long insertData(String kanji, String meaning, String onyomi, String kunyomi, int progress)
     {
         SQLiteDatabase db = myKanjiDb.getWritableDatabase();
@@ -64,19 +66,19 @@ public class KanjiToStudyAdapter {
         return 0;
     }
 
-    public Cursor getItemsByLevel(int lvl)
+    public Cursor getItemsByLevel(String lvl)
     {
         SQLiteDatabase db = myKanjiDb.getWritableDatabase();
         //select _kanji, _meaning, _onReading, _kunReading, _progress, _level
         String[] columns = {myKanjiDb.COLUMN_KANJI, myKanjiDb.COLUMN_MEANING,
                 myKanjiDb.COLUMN_KUN_READING, myKanjiDb.COLUMN_ON_READING, myKanjiDb.COLUMN_PROGRESS, myKanjiDb.COLUMN_LEVEL};
         //order by random()
-        String where_clause = "_level = " + Integer.toString(lvl);
+        String where_clause = "_level = '" + lvl +"'";
         Cursor cursor = db.query(myKanjiDb.TABLE_NAME, columns, where_clause, null, null, null, "random()");
         return cursor;
     }
 
-    public Cursor getItemsByLevel_excludeItem(int lvl, String exclude)
+    public Cursor getItemsByLevel_excludeItem(String lvl, String exclude)
     {
         SQLiteDatabase db = myKanjiDb.getWritableDatabase();
         //select _onReading where _kanji != exclude order by random()
@@ -86,11 +88,31 @@ public class KanjiToStudyAdapter {
         return cursor;
     }
 
+    public ArrayList<String> getLevels()
+    {
+        SQLiteDatabase db = myKanjiDb.getWritableDatabase();
+        //select _level from table
+        ArrayList<String> levels = new ArrayList<String>();
+        String[] columns = {myKanjiDb.COLUMN_LEVEL};
+        Cursor cursor = db.query(myKanjiDb.TABLE_NAME, columns, null, null, null, null, null);
+        int levelColumn = cursor.getColumnIndex(myKanjiDb.COLUMN_LEVEL);
+        while(cursor.moveToNext())
+        {
+            String levelToLoad = cursor.getString(levelColumn);
+            if(!(levels.contains(levelToLoad)))
+            {
+                levels.add(levelToLoad);
+            }
+        }
+
+        return levels;
+    }
+
     //THIS IS AN INNER STATIC CLASS
     //This way it creates a single database the program can use.
     //
     static class KanjiToStudy extends SQLiteOpenHelper {
-        private static final int DATABASE_VERSION = 8;
+        private static final int DATABASE_VERSION = 9;
         private static final String DATABASE_NAME = "kanjiDB";
         private static final String TABLE_NAME = "KANJI_TABLE";
 
@@ -109,7 +131,7 @@ public class KanjiToStudyAdapter {
         //SQL Statements
         public static final String CREATE_TABLE = "CREATE TABLE KANJI_TABLE(_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " _kanji VARCHAR(20), _meaning VARCHAR(100), _onReading VARCHAR(10), _kunReading VARCHAR(10)," +
-                " _progress int, _level int, _time VARCHAR(100));";
+                " _progress int, _level VARCHAR(100), _time VARCHAR(100));";
         public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         public KanjiToStudy(Context context) {
@@ -134,7 +156,7 @@ public class KanjiToStudyAdapter {
                 String onyomi_in;
                 String kunyomi_in;
                 int progress_in;
-                int level_in;
+                String level_in;
                 String time_in;
                 while(sc.hasNext()==true)
                 {
@@ -142,7 +164,7 @@ public class KanjiToStudyAdapter {
                     meaning_in = sc.next();
                     onyomi_in = sc.next();
                     kunyomi_in = sc.next();
-                    level_in = sc.nextInt();
+                    level_in = sc.next();
                     progress_in = sc.nextInt();
                     time_in = sc.next();
                     sc.nextLine();
@@ -165,7 +187,7 @@ public class KanjiToStudyAdapter {
         }
 
         public long preloadData(String kanji, String meaning, String onyomi, String kunyomi,
-                                int progress, int level, String time, SQLiteDatabase db)
+                                int progress, String level, String time, SQLiteDatabase db)
         {
             ContentValues contentValues = new ContentValues();
             contentValues.put(KanjiToStudy.COLUMN_KANJI, kanji);
