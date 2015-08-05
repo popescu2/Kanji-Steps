@@ -1,3 +1,8 @@
+<!--
+COPYRIGHT (c) 2015 Matthew Popescu
+This is licensed under GNU General Public License
+Detailed Licensing information can be found in the COPYING file
+-->
 <resources>
     <string name="app_name">KanjiSteps</string>
 
@@ -11,4 +16,10 @@
     <string name="title_activity_practice_slides">Practice_slides</string>
     <string name="title_activity_study__slides">Study_Slides</string>
     <string name="title_activity_study__menu">Study_Menu</string>
+    <string name="Study_Display_Kanji"><u>Kanji</u>:</string>
+    <string name="Study_Display_Meaning"><u>Definition</u>:</string>
+    <string name="Study_Display_Onyomi"><u>Onyomi Reading</u>:</string>
+    <string name="Study_Display_Kunyomi"><u>Kunyomi</u>:</string>
+    <string name="Last_Item_In_Deck">This is the last item in this level. Click to quiz yourself!</string>
+
 </resources>

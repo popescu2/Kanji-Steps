@@ -1,8 +1,14 @@
+/*
+COPYRIGHT (c) 2015 Matthew Popescu
+This is licensed under GNU General Public License
+Detailed Licensing information can be found in the COPYING file
+ */
 package opensourceproject.kanjisteps;
 
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,13 +18,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 public class Practice_slides extends ActionBarActivity {
 
     public String level_marker = "";
+    private String correctAnswer = "";
+    private boolean Switch = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +34,12 @@ public class Practice_slides extends ActionBarActivity {
         {
             level_marker = extras.getString("INITIALIZE_LEVEL");
         }
-        quizByLevel();
+        if (quizByLevelOnyomi() == 1 && quizByLevelMeaning() == 1)
+        {
+            resetButtons();
+
+            //no review notice.
+        }
     }
 
     @Override
@@ -71,9 +82,9 @@ public class Practice_slides extends ActionBarActivity {
     -That's it. The program only displays one "kanji", and will return.
     -The user will then select the correct reading from several options.
      */
-    public void quizByLevel() {
+    public int quizByLevelOnyomi() {
         KanjiToStudyAdapter dbAdapter = new KanjiToStudyAdapter(this);
-        Cursor cursor = dbAdapter.getItemsByLevel(level_marker);
+        Cursor cursor = dbAdapter.getItemsByLevelRandom(level_marker, 0);
         TextView txt = (TextView) findViewById(R.id.textToDisplay);
         String temp = "";
         if (cursor.moveToNext()) {
@@ -83,11 +94,25 @@ public class Practice_slides extends ActionBarActivity {
             txt.setText(temp);
             txt.setTextSize(50);
             txt.setTextColor(Color.GRAY);
-            populateButtonChoices(cursor, dbAdapter);
+            txt.setTag("2"); //2 means japanese READING
+            populateButtonChoicesOnyomi(cursor, dbAdapter);
+            return 0;
+        }
+        else
+        {
+            /*
+            txt.setTextSize(20);
+            txt.setTextColor(Color.GRAY);
+            txt.setText("You don't have any items to review yet! Check back later.");
+            resetButtons();
+            */
+            return 1;
         }
     }
 
-    public void populateButtonChoices(Cursor cursor, KanjiToStudyAdapter dbAdapter)
+
+
+    public void populateButtonChoicesOnyomi(Cursor cursor, KanjiToStudyAdapter dbAdapter)
     {
         //randomly place the correct answer in a button
         int[] answer_array = {1,2,3,4};
@@ -123,7 +148,10 @@ public class Practice_slides extends ActionBarActivity {
 
             //reset cursor to grab new set of data, this time it can have all levels
             //but it will EXCLUDE the row with the kanji we are loading in below.
-            if(!correct_answer_set) dbAdapter.getItemsByLevel_excludeItem(level_marker, kanjiToExclude);
+            if(!correct_answer_set) {
+                cursor = dbAdapter.getItemsByLevel_excludeItem(level_marker, kanjiToExclude);
+                correctAnswer = Integer.toString(answer_array[i]);
+            }
             correct_answer_set = true;
 
             cursor.moveToNext();
@@ -158,8 +186,18 @@ public class Practice_slides extends ActionBarActivity {
     the database by one.
     else, decrease the progress by one.
      */
+    private long lastClick = 0;
+
     public void btnAnswer(View view)
     {
+        //This code attempts to ignore multiple button clicks on one page.
+        if(SystemClock.elapsedRealtime() - lastClick < 3000)
+        {
+            return;
+        }
+        lastClick = SystemClock.elapsedRealtime();
+
+        /*
         String userAnswer;
         String kanjiDisplayed;
         String correctAnswer;
@@ -172,24 +210,116 @@ public class Practice_slides extends ActionBarActivity {
 
         KanjiToStudyAdapter dbAdapter = new KanjiToStudyAdapter(this);
         correctAnswer = dbAdapter.getOnyomiByKanji(kanjiDisplayed);
+        */
 
-        new asyncCaller().execute(userAnswer, correctAnswer);
+        String kanjiDisplayed;
+        TextView textView = (TextView)findViewById(R.id.textToDisplay);
+        kanjiDisplayed = textView.getText().toString();
+
+        if(kanjiDisplayed.equals("You don't have any items to review yet! Check back later.")) return;
+
+        String userAnswer;
+        String quizTag; //1 means ENGLISH MEANING, 2 means JAPANESE READING
+        Button button = (Button)view;
+        userAnswer = button.getTag().toString();
+        quizTag = textView.getTag().toString();
+
+        new asyncCaller().execute(userAnswer, correctAnswer, kanjiDisplayed, quizTag);
 
         //quizByLevel();
+    }
+
+    public void populateButtonChoicesMeaning(Cursor cursor, KanjiToStudyAdapter dbAdapter)
+    {
+        int[] answer_array = {1,2,3,4};
+        shuffleArray(answer_array);
+        int indexOfKanji = cursor.getColumnIndex(dbAdapter.myKanjiDb.COLUMN_KANJI);
+        String kanjiToExclude = cursor.getString(indexOfKanji);
+        boolean correct_answer_set = false;
+
+        for(int i=0; i<4; i++)
+        {
+            Button btn;
+            if(answer_array[i] == 1) {
+                btn = (Button) findViewById(R.id.btnMultipleChoice1);
+            }
+            else if (answer_array[i] ==2)
+            {
+                btn = (Button) findViewById(R.id.btnMultipleChoice2);
+            }
+            else if(answer_array[i]==3)
+            {
+                btn = (Button) findViewById(R.id.btnMultipleChoice3);
+            }
+            else
+            {
+                btn = (Button) findViewById(R.id.btnMultipleChoice4);
+            }
+
+            //indexes of onyomi and kanji to access columns.
+            int indexOfMeaning = cursor.getColumnIndex(dbAdapter.myKanjiDb.COLUMN_MEANING);
+
+            //grab the onyomi and kanji strings from where the cursor is pointing RIGHT NOW
+            String meaning = cursor.getString(indexOfMeaning);
+
+            //reset cursor to grab new set of data, this time it can have all levels
+            //but it will EXCLUDE the row with the kanji we are loading in below.
+            if(!correct_answer_set) {
+                cursor = dbAdapter.getItemsByLevel_excludeItem(level_marker, kanjiToExclude);
+                correctAnswer = Integer.toString(answer_array[i]);
+            }
+            correct_answer_set = true;
+
+            cursor.moveToNext();
+
+            btn.setText(meaning);
+        }
+    }
+
+    public int quizByLevelMeaning()
+    {
+        KanjiToStudyAdapter dbAdapter = new KanjiToStudyAdapter(this);
+        Cursor cursor = dbAdapter.getItemsByLevelRandom(level_marker, 1);
+        TextView txt = (TextView) findViewById(R.id.textToDisplay);
+        String temp = "";
+        if (cursor.moveToNext()) {
+            int indexOfKanji = cursor.getColumnIndex(dbAdapter.myKanjiDb.COLUMN_KANJI);
+            temp = cursor.getString(indexOfKanji);
+
+            txt.setText(temp);
+            txt.setTextSize(50);
+            txt.setTextColor(Color.GRAY);
+            txt.setTag("1"); //1 means ENGLISH meaning
+            populateButtonChoicesMeaning(cursor, dbAdapter);
+            return 0;
+        }
+        else
+        {
+            /*
+            txt.setText("You don't have any items to review yet! Check back later.");
+            txt.setTextSize(20);
+            txt.setTextColor(Color.GRAY);
+
+            resetButtons();
+            */
+            return 1; //display notice that there is nothing to review yet.
+        }
+
     }
 
 
     class asyncCaller extends AsyncTask<String, String, Void>{
 
-
         @Override
         protected Void doInBackground(String... params)
         {
+            KanjiToStudyAdapter myKanjidb = new KanjiToStudyAdapter(Practice_slides.this);
             if(params[0].equals(params[1]))
             {
                 //do code here
                 //textView.setTextColor(Color.GREEN);
-                publishProgress("#7fff00");
+                publishProgress("#7fff00", params[1]);
+                myKanjidb.correctAnswer(params[2], params[3]);
                 try {
                     Thread.sleep(2000);
                 }catch(InterruptedException e){
@@ -198,7 +328,8 @@ public class Practice_slides extends ActionBarActivity {
             }
             else
             {
-                publishProgress("#ff0000");
+                publishProgress("#ff0000", params[1]);
+                myKanjidb.incorrectAnswer(params[2], params[3]);
                 try {
                     Thread.sleep(2000);
                 }catch(InterruptedException e)
@@ -214,11 +345,42 @@ public class Practice_slides extends ActionBarActivity {
             TextView txt = (TextView)findViewById(R.id.textToDisplay);
 
             txt.setTextColor(Color.parseColor(values[0]));
+            //onPostExecute(values[1]);
+
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            quizByLevel();
+            if(Switch){
+                Switch = false;
+                if(quizByLevelOnyomi() == 1 && quizByLevelMeaning() == 1)
+                    resetButtons();
+            }
+            else
+            {
+                Switch = true;
+                if( quizByLevelMeaning() == 1 && quizByLevelOnyomi() == 1)
+                    resetButtons();
+            }
         }
+    }
+
+    public void resetButtons()
+    {
+        TextView txt = (TextView)findViewById(R.id.textToDisplay);
+        txt.setText("You don't have any items to review yet! Check back later.");
+        txt.setTextSize(20);
+        txt.setTextColor(Color.GRAY);
+
+
+        Button btn1 = (Button)findViewById(R.id.btnMultipleChoice1);
+        Button btn2 = (Button)findViewById(R.id.btnMultipleChoice2);
+        Button btn3 = (Button)findViewById(R.id.btnMultipleChoice3);
+        Button btn4 = (Button)findViewById(R.id.btnMultipleChoice4);
+
+        btn1.setText("");
+        btn2.setText("");
+        btn3.setText("");
+        btn4.setText("");
     }
 }

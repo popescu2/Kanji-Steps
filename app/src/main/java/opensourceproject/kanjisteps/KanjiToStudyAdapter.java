@@ -1,3 +1,9 @@
+/*
+COPYRIGHT (c) 2015 Matthew Popescu
+This is licensed under GNU General Public License
+Detailed Licensing information can be found in the COPYING file
+ */
+
 package opensourceproject.kanjisteps;
 
 
@@ -12,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -44,7 +51,7 @@ public class KanjiToStudyAdapter {
         //select _onReading from KANJI_TABLE where _kanji = '*some value*'
         SQLiteDatabase db = myKanjiDb.getWritableDatabase();
         String[] columns = {myKanjiDb.COLUMN_ON_READING};
-        String[] whereArgs = {kanji};
+        //String[] whereArgs = {kanji};
         String where_clause = "_kanji = '" + kanji +"'";
         Cursor cursor = db.query(myKanjiDb.TABLE_NAME, columns, where_clause, null, null, null, null);
 
@@ -54,16 +61,100 @@ public class KanjiToStudyAdapter {
         return returnValue;
     }
 
-    public long correctAnswer()
-    {
+    //The way I am encoding the "progress" for the user for a particular
+    //item is rather complicated.
+    /*
+    Basically, a regular number with no decimal values means an actual progress
+    level. A number with some decimal value means it's a partial progress level.
+    Since I am quizzing the user on Kanji reading AND kanji definition, they need
+    to be linked. But the quizzing environment quizzes these at the same time, but
+    I will only upgrade the progress if the user gets BOTH of them correct.
 
+    The quiz tag means what kind of correct answer we got. 1 means ENGLISH MEANING,
+    2 means JAPANESE READING.
+    If you get the correct MEANING, I upgrade progress by +0.25
+    If you get the correct READING, I upgrade progress by +0.5
+     */
+
+    public long correctAnswer(String correctAnswer, String quizTag)
+    {
+        SQLiteDatabase db = myKanjiDb.getWritableDatabase();
+        String[] columns = {myKanjiDb.COLUMN_PROGRESS};
+        String where_clause = "_kanji = '" + correctAnswer + "'";
+        Cursor cursor = db.query(myKanjiDb.TABLE_NAME, columns, where_clause, null, null, null, null);
+
+        int progressIndex = cursor.getColumnIndex(myKanjiDb.COLUMN_PROGRESS);
+
+        cursor.moveToNext();
+        float previousProgress = cursor.getFloat(progressIndex);
+        float partial_progress = (float) (previousProgress - Math.floor(previousProgress));
+        ContentValues cv = new ContentValues();
+
+        if(quizTag.equals("1")) //answered MEANING correctly
+        {
+            if(partial_progress == 0) //fresh progress level.
+            {
+                previousProgress += 0.25;
+                cv.put(myKanjiDb.COLUMN_PROGRESS, previousProgress);
+                db.update(myKanjiDb.TABLE_NAME, cv, where_clause, null);
+            }
+            else if (partial_progress == 0.5) //previously got correct READING
+            {
+                previousProgress += 0.5;
+                long nextReviewTime = getNextReviewTime(previousProgress);
+                cv.put(myKanjiDb.COLUMN_PROGRESS, previousProgress);
+                cv.put(myKanjiDb.COLUMN_TIME, nextReviewTime);
+                db.update(myKanjiDb.TABLE_NAME, cv, where_clause, null);
+            }
+        }
+        else                //answered READING correctly
+        {
+            if(partial_progress == 0) //fresh progress level.
+            {
+                previousProgress += 0.5;
+                cv.put(myKanjiDb.COLUMN_PROGRESS, previousProgress);
+                db.update(myKanjiDb.TABLE_NAME, cv, where_clause, null);
+            }
+            else if (partial_progress == 0.25) //previously got correct MEANING
+            {
+                previousProgress += 0.75;
+                long nextReviewTime = getNextReviewTime(previousProgress);
+                cv.put(myKanjiDb.COLUMN_PROGRESS, previousProgress);
+                cv.put(myKanjiDb.COLUMN_TIME, nextReviewTime);
+                db.update(myKanjiDb.TABLE_NAME, cv, where_clause, null);
+            }
+        }
         return 0;
     }
 
-    public long incorrectAnswer()
+    public long incorrectAnswer(String correctAnswer, String quizTag)
     {
+        SQLiteDatabase db = myKanjiDb.getWritableDatabase();
+        String[] columns = {myKanjiDb.COLUMN_PROGRESS};
+        String where_clause = "_kanji = '" + correctAnswer + "'";
+        Cursor cursor = db.query(myKanjiDb.TABLE_NAME, columns, where_clause, null, null, null, null);
 
+        int progressIndex = cursor.getColumnIndex(myKanjiDb.COLUMN_PROGRESS);
+
+        cursor.moveToNext();
+        float previousProgress = cursor.getFloat(progressIndex);
+        float partial_progress = (float) (previousProgress - Math.floor(previousProgress));
+        ContentValues cv = new ContentValues();
+
+        if (previousProgress == 1) return 0; //progress cannot go lower than 1, so do nothing in this case.
+        else
+        {
+            previousProgress = previousProgress - 1;
+            cv.put(myKanjiDb.COLUMN_PROGRESS, previousProgress);
+
+            db.update(myKanjiDb.TABLE_NAME, cv, "_kanji = '"+ correctAnswer + "'", null);
+        }
         return 0;
+    }
+
+    public long getNextReviewTime(float previousProgress)
+    {
+        return (long) (new Date().getTime()+ (1000 * 60 * 60)*(1 << (int) previousProgress));
     }
 
     public Cursor getItemsByLevel(String lvl)
@@ -74,16 +165,49 @@ public class KanjiToStudyAdapter {
                 myKanjiDb.COLUMN_KUN_READING, myKanjiDb.COLUMN_ON_READING, myKanjiDb.COLUMN_PROGRESS, myKanjiDb.COLUMN_LEVEL};
         //order by random()
         String where_clause = "_level = '" + lvl +"'";
+        Cursor cursor = db.query(myKanjiDb.TABLE_NAME, columns, where_clause, null, null, null, null);
+        return cursor;
+    }
+
+    //the quiz flag tells what kind of question it is. 1 = MEANING, 0 = MEANING.
+    public Cursor getItemsByLevelRandom(String lvl, int quizFlag)
+    {
+        SQLiteDatabase db = myKanjiDb.getWritableDatabase();
+        //select _kanji, _meaning, _onReading, _kunReading, _progress, _level
+        String[] columns = {myKanjiDb.COLUMN_KANJI, myKanjiDb.COLUMN_MEANING,
+                myKanjiDb.COLUMN_KUN_READING, myKanjiDb.COLUMN_ON_READING, myKanjiDb.COLUMN_PROGRESS, myKanjiDb.COLUMN_LEVEL};
+        //order by random()
+        long current_time = (long) (new Date().getTime());
+        String where_clause;
+
+        if(quizFlag == 1)
+            where_clause = "_level = '" + lvl +"'" + " AND _time <= " + current_time + " AND _progress - (cast (_progress as int)) <> 0.25";
+        else
+            where_clause = "_level = '" + lvl +"'" + " AND _time <= " + current_time + " AND _progress - (cast (_progress as int)) <> 0.5";
         Cursor cursor = db.query(myKanjiDb.TABLE_NAME, columns, where_clause, null, null, null, "random()");
         return cursor;
     }
+
+    public void upgradeToReview(String lvl)
+    {
+        SQLiteDatabase db = myKanjiDb.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        long timeForNextReview = (long) (new Date().getTime());
+        cv.put(KanjiToStudy.COLUMN_TIME, timeForNextReview);
+
+        String whereClause = "_level = '" + lvl +"'";
+
+        db.update(myKanjiDb.TABLE_NAME, cv, whereClause, null);
+    }
+
+
 
     public Cursor getItemsByLevel_excludeItem(String lvl, String exclude)
     {
         SQLiteDatabase db = myKanjiDb.getWritableDatabase();
         //select _onReading where _kanji != exclude order by random()
-        String[] columns = {myKanjiDb.COLUMN_ON_READING};
-        String exclusion_clause = "_kanji <> '" + "'";
+        String[] columns = {myKanjiDb.COLUMN_ON_READING, myKanjiDb.COLUMN_MEANING};
+        String exclusion_clause = "_kanji <> '" + exclude + "'";
         Cursor cursor = db.query(myKanjiDb.TABLE_NAME, columns, exclusion_clause, null, null, null, "random()");
         return cursor;
     }
@@ -112,7 +236,7 @@ public class KanjiToStudyAdapter {
     //This way it creates a single database the program can use.
     //
     static class KanjiToStudy extends SQLiteOpenHelper {
-        private static final int DATABASE_VERSION = 9;
+        private static final int DATABASE_VERSION = 13;
         private static final String DATABASE_NAME = "kanjiDB";
         private static final String TABLE_NAME = "KANJI_TABLE";
 
@@ -131,7 +255,7 @@ public class KanjiToStudyAdapter {
         //SQL Statements
         public static final String CREATE_TABLE = "CREATE TABLE KANJI_TABLE(_id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " _kanji VARCHAR(20), _meaning VARCHAR(100), _onReading VARCHAR(10), _kunReading VARCHAR(10)," +
-                " _progress int, _level VARCHAR(100), _time VARCHAR(100));";
+                " _progress REAL, _level VARCHAR(100), _time VARCHAR(100));";
         public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
 
         public KanjiToStudy(Context context) {
@@ -155,7 +279,7 @@ public class KanjiToStudyAdapter {
                 String meaning_in;
                 String onyomi_in;
                 String kunyomi_in;
-                int progress_in;
+                float progress_in;
                 String level_in;
                 String time_in;
                 while(sc.hasNext()==true)
@@ -165,7 +289,7 @@ public class KanjiToStudyAdapter {
                     onyomi_in = sc.next();
                     kunyomi_in = sc.next();
                     level_in = sc.next();
-                    progress_in = sc.nextInt();
+                    progress_in = sc.nextFloat();
                     time_in = sc.next();
                     sc.nextLine();
                     long id = preloadData(kanji_in, meaning_in, onyomi_in, kunyomi_in, progress_in, level_in, time_in, db);
@@ -187,7 +311,7 @@ public class KanjiToStudyAdapter {
         }
 
         public long preloadData(String kanji, String meaning, String onyomi, String kunyomi,
-                                int progress, String level, String time, SQLiteDatabase db)
+                                float progress, String level, String time, SQLiteDatabase db)
         {
             ContentValues contentValues = new ContentValues();
             contentValues.put(KanjiToStudy.COLUMN_KANJI, kanji);

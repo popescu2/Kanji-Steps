@@ -1,3 +1,9 @@
+<!--
+COPYRIGHT (c) 2015 Matthew Popescu
+This is licensed under GNU General Public License
+Detailed Licensing information can be found in the COPYING file
+-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:orientation="vertical"

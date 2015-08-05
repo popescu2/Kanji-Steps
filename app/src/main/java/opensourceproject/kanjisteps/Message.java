@@ -1,3 +1,9 @@
+/*
+COPYRIGHT (c) 2015 Matthew Popescu
+This is licensed under GNU General Public License
+Detailed Licensing information can be found in the COPYING file
+ */
+
 package opensourceproject.kanjisteps;
 
 /**

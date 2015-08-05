@@ -1,3 +1,9 @@
+<!--
+COPYRIGHT (c) 2015 Matthew Popescu
+This is licensed under GNU General Public License
+Detailed Licensing information can be found in the COPYING file
+-->
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
@@ -11,7 +17,35 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/txtTemp"/>
+        android:id="@+id/txtKanji"
+        android:textSize="50dp" />
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtEngMeaning"
+        android:textSize="20dp" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtOnyomi"
+        android:textSize="20dp"/>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtKunyomi"
+        android:textSize="20sp"/>
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/Last_Item_In_Deck"
+        android:textAllCaps="false"
+        android:id="@+id/btnLastItem"
+        android:visibility="invisible"
+        android:onClick="lastItemPressed"
+        android:layout_gravity="bottom"
+        />
 
 </LinearLayout>

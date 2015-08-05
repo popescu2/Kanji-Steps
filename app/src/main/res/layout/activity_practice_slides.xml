@@ -1,3 +1,9 @@
+<!--
+COPYRIGHT (c) 2015 Matthew Popescu
+This is licensed under GNU General Public License
+Detailed Licensing information can be found in the COPYING file
+-->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:orientation="vertical"
@@ -30,25 +36,29 @@
             android:layout_width="fill_parent"
             android:layout_weight="1"
             android:onClick="btnAnswer"
-            android:id="@+id/btnMultipleChoice1"/>
+            android:id="@+id/btnMultipleChoice1"
+            android:tag="1"/>
         <Button
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
             android:layout_weight="1"
             android:onClick="btnAnswer"
-            android:id="@+id/btnMultipleChoice2"/>
+            android:id="@+id/btnMultipleChoice2"
+            android:tag="2"/>
         <Button
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
             android:layout_weight="1"
             android:onClick="btnAnswer"
-            android:id="@+id/btnMultipleChoice3"/>
+            android:id="@+id/btnMultipleChoice3"
+            android:tag="3"/>
         <Button
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:onClick="btnAnswer"
-            android:id="@+id/btnMultipleChoice4"/>
+            android:id="@+id/btnMultipleChoice4"
+            android:tag="4"/>
 
     </LinearLayout>
 </LinearLayout>

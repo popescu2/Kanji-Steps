@@ -1,6 +1,13 @@
+/*
+COPYRIGHT (c) 2015 Matthew Popescu
+This is licensed under GNU General Public License
+Detailed Licensing information can be found in the COPYING file
+ */
+
 package opensourceproject.kanjisteps;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.ActionBarActivity;
@@ -22,7 +29,7 @@ public class Study_Menu extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_study__menu);
-        layout = (LinearLayout) View.inflate(this, R.layout.activity_study__menu, null);
+        layout = (LinearLayout)findViewById(R.id.studyMenuLayout);
         loadLevels();
     }
 
@@ -48,6 +55,24 @@ public class Study_Menu extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void lvlPressed(View view) {
+        Button b = (Button) view;
+        String btnID = b.getText().toString();
+
+        /*
+        The following statement is performed in order to extract the level from the button,
+        which is the only way I know how to grab the level based on what button the user
+        clicked. As of now, the level buttons will be hardcoded as "LEVEL <number>",
+        so doing a substring on the 6th index to the rest is sufficient for now to only
+        grab the integer.
+         */
+
+
+        Intent openPSlides = new Intent("android.intent.action.STUDY_SLIDES");
+        openPSlides.putExtra("INITIALIZE_LEVEL", btnID);
+        startActivity(openPSlides);
+    }
+
 
     public void loadLevels()
     {
@@ -65,11 +90,11 @@ public class Study_Menu extends ActionBarActivity {
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    btn.setText("Button was clicked " + btn.getId());
+                    lvlPressed(v);
                 }
             });
             layout.addView(btn);
-            setContentView(layout);
+            //setContentView(R.layout.activity_study__menu);
         }
     }
 
