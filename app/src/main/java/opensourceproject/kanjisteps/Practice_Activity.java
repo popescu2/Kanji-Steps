@@ -28,7 +28,7 @@ public class Practice_Activity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practice_layout);
-        layout = (LinearLayout) View.inflate(this, R.layout.activity_practice_layout, null);
+        layout = (LinearLayout)findViewById(R.id.practiceMenu);
         loadLevels();
     }
 
@@ -103,7 +103,7 @@ public class Practice_Activity extends ActionBarActivity {
                 }
             });
             layout.addView(btn);
-            setContentView(layout);
+            //setContentView(layout);
         }
     }
 }
