@@ -1,0 +1,19 @@
+The data structure used to hold all of the data (kanji lists, readings, etc) is stored in a database locally. (on the user's phone)
+
+The database is structured as follows.
+
+Columns:
+-Kanji symbol *String
+-English meaning *String
+-Chinese Reading (onyomi) *String
+-Japanese Reading (kunyomi) *String
+-Level *String
+-Progress *float
+-Next Review Time *long
+
+
+My project has a "spaced repetition" system in place. What that means is if you successfully answer a question, you won't be asked that question again until a later time. If you answer it right again, the time until the next review will increase until it reaches even years in length.
+
+To begin, if you answer a question correctly, it will prompt you again in one hour.
+If you answer it correctly again, it will prompt you again in 2 hours.
+Then 4, then 8, then 16, then 32, then 64, etc. When you reach progress 13, you cannot go higher. At this point, it will quiz you again in about a year. so I won't make it higher than that.
