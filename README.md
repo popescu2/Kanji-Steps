@@ -1,6 +1,6 @@
 # Kanji-Steps
 Copyright (c) 2015 Matthew Popescu
-License: GPL
+License: GPL (Detailed licensing information can be found in the COPYING file)
 
 KanjiSteps is an Android application that will help users memorize Kanji definitions and readings. This app is intended to complement a college course as an extra tool for students to use.
 
