@@ -7,6 +7,7 @@ package opensourceproject.kanjisteps;
 
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
@@ -126,18 +127,22 @@ public class Practice_slides extends ActionBarActivity {
             Button btn;
             if(answer_array[i] == 1) {
                 btn = (Button) findViewById(R.id.btnMultipleChoice1);
+                btn.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP);
             }
             else if (answer_array[i] ==2)
             {
                 btn = (Button) findViewById(R.id.btnMultipleChoice2);
+                btn.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP);
             }
             else if(answer_array[i]==3)
             {
                 btn = (Button) findViewById(R.id.btnMultipleChoice3);
+                btn.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP);
             }
             else
             {
                 btn = (Button) findViewById(R.id.btnMultipleChoice4);
+                btn.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP);
             }
 
             //indexes of onyomi and kanji to access columns.
@@ -149,7 +154,7 @@ public class Practice_slides extends ActionBarActivity {
             //reset cursor to grab new set of data, this time it can have all levels
             //but it will EXCLUDE the row with the kanji we are loading in below.
             if(!correct_answer_set) {
-                cursor = dbAdapter.getItemsByLevel_excludeItem(level_marker, kanjiToExclude);
+                cursor = dbAdapter.getItemsByLevel_excludeReading(level_marker, onyomi);
                 correctAnswer = Integer.toString(answer_array[i]);
             }
             correct_answer_set = true;
@@ -242,18 +247,22 @@ public class Practice_slides extends ActionBarActivity {
             Button btn;
             if(answer_array[i] == 1) {
                 btn = (Button) findViewById(R.id.btnMultipleChoice1);
+                btn.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP);
             }
             else if (answer_array[i] ==2)
             {
                 btn = (Button) findViewById(R.id.btnMultipleChoice2);
+                btn.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP);
             }
             else if(answer_array[i]==3)
             {
                 btn = (Button) findViewById(R.id.btnMultipleChoice3);
+                btn.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP);
             }
             else
             {
                 btn = (Button) findViewById(R.id.btnMultipleChoice4);
+                btn.getBackground().setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_ATOP);
             }
 
             //indexes of onyomi and kanji to access columns.
@@ -265,7 +274,7 @@ public class Practice_slides extends ActionBarActivity {
             //reset cursor to grab new set of data, this time it can have all levels
             //but it will EXCLUDE the row with the kanji we are loading in below.
             if(!correct_answer_set) {
-                cursor = dbAdapter.getItemsByLevel_excludeItem(level_marker, kanjiToExclude);
+                cursor = dbAdapter.getItemsByLevel_excludeMeaning(level_marker, kanjiToExclude);
                 correctAnswer = Integer.toString(answer_array[i]);
             }
             correct_answer_set = true;
@@ -343,6 +352,31 @@ public class Practice_slides extends ActionBarActivity {
         @Override
         protected void onProgressUpdate(String... values) {
             TextView txt = (TextView)findViewById(R.id.textToDisplay);
+            Button btn;
+
+            if (values[0].equals("#ff0000"))
+            {
+                if(values[1].equals("1"))
+                {
+                    btn = (Button)findViewById(R.id.btnMultipleChoice1);
+                    btn.getBackground().setColorFilter(Color.parseColor("#04C91B"), PorterDuff.Mode.SRC_ATOP);
+                }
+                else if (values[1].equals("2"))
+                {
+                    btn = (Button)findViewById(R.id.btnMultipleChoice2);
+                    btn.getBackground().setColorFilter(Color.parseColor("#04C91B"), PorterDuff.Mode.SRC_ATOP);
+                }
+                else if (values[1].equals("3"))
+                {
+                    btn = (Button)findViewById(R.id.btnMultipleChoice3);
+                    btn.getBackground().setColorFilter(Color.parseColor("#04C91B"), PorterDuff.Mode.SRC_ATOP);
+                }
+                else if (values[1].equals("4"))
+                {
+                    btn = (Button)findViewById(R.id.btnMultipleChoice4);
+                    btn.getBackground().setColorFilter(Color.parseColor("#04C91B"), PorterDuff.Mode.SRC_ATOP);
+                }
+            }
 
             txt.setTextColor(Color.parseColor(values[0]));
             //onPostExecute(values[1]);

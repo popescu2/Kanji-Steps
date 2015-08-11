@@ -202,13 +202,24 @@ public class KanjiToStudyAdapter {
 
 
 
-    public Cursor getItemsByLevel_excludeItem(String lvl, String exclude)
+    public Cursor getItemsByLevel_excludeMeaning(String lvl, String exclude)
     {
         SQLiteDatabase db = myKanjiDb.getWritableDatabase();
         //select _onReading where _kanji != exclude order by random()
         String[] columns = {myKanjiDb.COLUMN_ON_READING, myKanjiDb.COLUMN_MEANING};
         String exclusion_clause = "_kanji <> '" + exclude + "'";
         Cursor cursor = db.query(myKanjiDb.TABLE_NAME, columns, exclusion_clause, null, null, null, "random()");
+        return cursor;
+    }
+
+    public Cursor getItemsByLevel_excludeReading(String lvl, String reading)
+    {
+        SQLiteDatabase db = myKanjiDb.getWritableDatabase();
+
+        String[] columns = {myKanjiDb.COLUMN_ON_READING, myKanjiDb.COLUMN_MEANING};
+        String exclusion_clause = "_onReading <> '" + reading + "'";
+        Cursor cursor = db.query(myKanjiDb.TABLE_NAME, columns, exclusion_clause, null, null, null, "random()");
+
         return cursor;
     }
 
