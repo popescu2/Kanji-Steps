@@ -1,3 +1,6 @@
+Copyright (c) Matthew Popescu, 2015
+Licensed under GPL.
+
 The data structure used to hold all of the data (kanji lists, readings, etc) is stored in a database locally. (on the user's phone)
 
 The database is structured as follows.

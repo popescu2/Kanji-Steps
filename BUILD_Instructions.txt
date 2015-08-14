@@ -1,3 +1,6 @@
+Copyright (c) Matthew Popescu, 2015
+Licensed under GPL.
+
 Build Instructions for Kanji-Steps.
 
 Background: This project was developed on Android Studio, and automatically comes with a Gradle build. As of now, in order to build this project, Android Studio is recommended.
