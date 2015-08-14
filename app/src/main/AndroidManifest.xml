@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    COPYRIGHT (c) 2015 Matthew Popescu
+    This is licensed under GNU General Public License
+    Detailed Licensing information can be found in the COPYING file
+-->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="opensourceproject.kanjisteps" >
 
