@@ -141,7 +141,7 @@ public class KanjiToStudyAdapter {
         float partial_progress = (float) (previousProgress - Math.floor(previousProgress));
         ContentValues cv = new ContentValues();
 
-        if (previousProgress == 1) return 0; //progress cannot go lower than 1, so do nothing in this case.
+        if (previousProgress <= 1) return 0; //progress cannot go lower than 1, so do nothing in this case.
         else
         {
             previousProgress = previousProgress - 1;

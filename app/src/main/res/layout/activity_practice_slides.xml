@@ -14,16 +14,28 @@ Detailed Licensing information can be found in the COPYING file
     tools:context="opensourceproject.kanjisteps.Practice_slides">
 
     <LinearLayout
+        android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:weightSum="2">
 
         <TextView
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="wrap_content"
             android:text="TestText"
-            android:gravity="center"
+            android:layout_weight="1"
+            android:gravity="bottom|center"
             android:id="@+id/textToDisplay"/>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="top|center"
+            android:text ="@string/Double_Tap_Notice"
+            android:id="@+id/textDoubleTap"
+            android:visibility="invisible"/>
     </LinearLayout>
     <LinearLayout
         android:orientation="vertical"

@@ -5,31 +5,50 @@ Detailed Licensing information can be found in the COPYING file
  */
 package opensourceproject.kanjisteps;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.AsyncTask;
 import android.os.SystemClock;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.Random;
+import android.view.View.OnClickListener;
+import static android.view.GestureDetector.*;
 
 
-public class Practice_slides extends ActionBarActivity {
+
+public class Practice_slides extends ActionBarActivity implements
+        OnClickListener {
 
     public String level_marker = "";
     private String correctAnswer = "";
     private boolean Switch = false;
+    private GestureDetector gd;
+    View.OnTouchListener gestureListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_practice_slides);
+
+        gd = new GestureDetector(this, new MyGestureDetector());
+        gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent e) {
+                return gd.onTouchEvent(e);
+            }
+        };
+
         Bundle extras = getIntent().getExtras();
         if (extras != null)
         {
@@ -41,6 +60,11 @@ public class Practice_slides extends ActionBarActivity {
 
             //no review notice.
         }
+    }
+
+    public void onClick(View v)
+    {
+
     }
 
     @Override
@@ -87,6 +111,11 @@ public class Practice_slides extends ActionBarActivity {
         KanjiToStudyAdapter dbAdapter = new KanjiToStudyAdapter(this);
         Cursor cursor = dbAdapter.getItemsByLevelRandom(level_marker, 0);
         TextView txt = (TextView) findViewById(R.id.textToDisplay);
+        TextView txtDblTap = (TextView)findViewById(R.id.textDoubleTap);
+        txtDblTap.setOnClickListener(this);
+        txtDblTap.setOnTouchListener(gestureListener);
+        txtDblTap.setVisibility(View.INVISIBLE);
+
         String temp = "";
         if (cursor.moveToNext()) {
             int indexOfKanji = cursor.getColumnIndex(dbAdapter.myKanjiDb.COLUMN_KANJI);
@@ -195,12 +224,7 @@ public class Practice_slides extends ActionBarActivity {
 
     public void btnAnswer(View view)
     {
-        //This code attempts to ignore multiple button clicks on one page.
-        if(SystemClock.elapsedRealtime() - lastClick < 3000)
-        {
-            return;
-        }
-        lastClick = SystemClock.elapsedRealtime();
+
 
         /*
         String userAnswer;
@@ -290,6 +314,10 @@ public class Practice_slides extends ActionBarActivity {
         KanjiToStudyAdapter dbAdapter = new KanjiToStudyAdapter(this);
         Cursor cursor = dbAdapter.getItemsByLevelRandom(level_marker, 1);
         TextView txt = (TextView) findViewById(R.id.textToDisplay);
+        TextView txtDblTap = (TextView)findViewById(R.id.textDoubleTap);
+        txtDblTap.setOnClickListener(this);
+        txtDblTap.setOnTouchListener(gestureListener);
+        txtDblTap.setVisibility(View.INVISIBLE);
         String temp = "";
         if (cursor.moveToNext()) {
             int indexOfKanji = cursor.getColumnIndex(dbAdapter.myKanjiDb.COLUMN_KANJI);
@@ -329,29 +357,20 @@ public class Practice_slides extends ActionBarActivity {
                 //textView.setTextColor(Color.GREEN);
                 publishProgress("#7fff00", params[1]);
                 myKanjidb.correctAnswer(params[2], params[3]);
-                try {
-                    Thread.sleep(2000);
-                }catch(InterruptedException e){
-                    e.printStackTrace();
-                }
             }
             else
             {
                 publishProgress("#ff0000", params[1]);
                 myKanjidb.incorrectAnswer(params[2], params[3]);
-                try {
-                    Thread.sleep(2000);
-                }catch(InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
+
             }
             return null;
         }
 
         @Override
         protected void onProgressUpdate(String... values) {
-            TextView txt = (TextView)findViewById(R.id.textToDisplay);
+            TextView txtTest = (TextView)findViewById(R.id.textToDisplay);
+            TextView txtDblTap = (TextView)findViewById(R.id.textDoubleTap);
             Button btn;
 
             if (values[0].equals("#ff0000"))
@@ -378,25 +397,18 @@ public class Practice_slides extends ActionBarActivity {
                 }
             }
 
-            txt.setTextColor(Color.parseColor(values[0]));
+            txtDblTap.setVisibility(View.VISIBLE);
+            txtTest.setTextColor(Color.parseColor(values[0]));
             //onPostExecute(values[1]);
 
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
-            if(Switch){
-                Switch = false;
-                if(quizByLevelOnyomi() == 1 && quizByLevelMeaning() == 1)
-                    resetButtons();
-            }
-            else
-            {
-                Switch = true;
-                if( quizByLevelMeaning() == 1 && quizByLevelOnyomi() == 1)
-                    resetButtons();
-            }
+
+
         }
+
     }
 
     public void resetButtons()
@@ -417,4 +429,28 @@ public class Practice_slides extends ActionBarActivity {
         btn3.setText("");
         btn4.setText("");
     }
+
+    class MyGestureDetector extends SimpleOnGestureListener {
+        @Override
+        public boolean onDoubleTap(MotionEvent e)
+        {
+            if (Switch) {
+                Switch = false;
+                if (quizByLevelOnyomi() == 1 && quizByLevelMeaning() == 1)
+                    resetButtons();
+            } else {
+                Switch = true;
+                if (quizByLevelMeaning() == 1 && quizByLevelOnyomi() == 1)
+                    resetButtons();
+            }
+
+            return true;
+        }
+        @Override
+        public boolean onDown(MotionEvent e)
+        {
+            return true;
+        }
+    }
+
 }

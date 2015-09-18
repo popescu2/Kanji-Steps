@@ -21,5 +21,6 @@ Detailed Licensing information can be found in the COPYING file
     <string name="Study_Display_Onyomi"><u>Onyomi Reading</u>:</string>
     <string name="Study_Display_Kunyomi"><u>Kunyomi</u>:</string>
     <string name="Last_Item_In_Deck">This is the last item in this level. Click to quiz yourself!</string>
+    <string name="Double_Tap_Notice">Double tap to move to next question.</string>
 
 </resources>
