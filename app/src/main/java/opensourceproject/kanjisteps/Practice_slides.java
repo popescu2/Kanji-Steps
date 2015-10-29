@@ -108,6 +108,7 @@ public class Practice_slides extends ActionBarActivity implements
     -The user will then select the correct reading from several options.
      */
     public int quizByLevelOnyomi() {
+        enableButtons();
         KanjiToStudyAdapter dbAdapter = new KanjiToStudyAdapter(this);
         Cursor cursor = dbAdapter.getItemsByLevelRandom(level_marker, 0);
         TextView txt = (TextView) findViewById(R.id.textToDisplay);
@@ -253,6 +254,8 @@ public class Practice_slides extends ActionBarActivity implements
         userAnswer = button.getTag().toString();
         quizTag = textView.getTag().toString();
 
+        disableButtons();
+
         new asyncCaller().execute(userAnswer, correctAnswer, kanjiDisplayed, quizTag);
 
         //quizByLevel();
@@ -311,6 +314,7 @@ public class Practice_slides extends ActionBarActivity implements
 
     public int quizByLevelMeaning()
     {
+        enableButtons();
         KanjiToStudyAdapter dbAdapter = new KanjiToStudyAdapter(this);
         Cursor cursor = dbAdapter.getItemsByLevelRandom(level_marker, 1);
         TextView txt = (TextView) findViewById(R.id.textToDisplay);
@@ -428,6 +432,34 @@ public class Practice_slides extends ActionBarActivity implements
         btn2.setText("");
         btn3.setText("");
         btn4.setText("");
+    }
+
+    public void disableButtons()
+    {
+        Button btn1 = (Button)findViewById(R.id.btnMultipleChoice1);
+        Button btn2 = (Button)findViewById(R.id.btnMultipleChoice2);
+        Button btn3 = (Button)findViewById(R.id.btnMultipleChoice3);
+        Button btn4 = (Button)findViewById(R.id.btnMultipleChoice4);
+
+        btn1.setEnabled(false);
+        btn2.setEnabled(false);
+        btn3.setEnabled(false);
+        btn4.setEnabled(false);
+
+    }
+
+    public void enableButtons()
+    {
+        Button btn1 = (Button)findViewById(R.id.btnMultipleChoice1);
+        Button btn2 = (Button)findViewById(R.id.btnMultipleChoice2);
+        Button btn3 = (Button)findViewById(R.id.btnMultipleChoice3);
+        Button btn4 = (Button)findViewById(R.id.btnMultipleChoice4);
+
+        btn1.setEnabled(true);
+        btn2.setEnabled(true);
+        btn3.setEnabled(true);
+        btn4.setEnabled(true);
+
     }
 
     class MyGestureDetector extends SimpleOnGestureListener {
